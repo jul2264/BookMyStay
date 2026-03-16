@@ -1,4 +1,5 @@
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,12 +101,34 @@ class RoomInventory {
     }
 }
 
+// UC4: Search Service (Read-only access)
+class SearchService {
+    private RoomInventory inventory;
+
+    public SearchService(RoomInventory inventory) {
+        this.inventory = inventory;
+    }
+
+    // Display available rooms without modifying state
+    public void searchAvailableRooms(Room[] rooms) {
+        System.out.println("\n--- Search Results: Available Rooms ---");
+        for (Room room : rooms) {
+            int availability = inventory.getAvailability(room.getRoomType());
+            if (availability > 0) {
+                room.displayRoomDetails();
+                System.out.println("Availability: " + availability + " rooms\n");
+            }
+        }
+    }
+}
+
 // Application Entry Point
 public class BookMyStay {
     public static void main(String[] args) {
         // UC1: Welcome message
         System.out.println("=======================================");
         System.out.println("   Welcome to Book My Stay App!");
+        System.out.println("   Hotel Booking Management System v4.1");
         System.out.println("   Hotel Booking Management System v3.1");
         System.out.println("=======================================\n");
 
@@ -114,6 +137,27 @@ public class BookMyStay {
         Room doubleRoom = new DoubleRoom();
         Room suite = new SuiteRoom();
 
+        Room[] rooms = { single, doubleRoom, suite };
+
+        // UC3: Centralized Inventory
+        RoomInventory inventory = new RoomInventory();
+        inventory.addRoomType(single.getRoomType(), 5);
+        inventory.addRoomType(doubleRoom.getRoomType(), 3);
+        inventory.addRoomType(suite.getRoomType(), 0); // Suite fully booked
+
+        inventory.displayInventory();
+
+        // UC4: Room Search (Read-only)
+        SearchService searchService = new SearchService(inventory);
+        searchService.searchAvailableRooms(rooms);
+
+        // Example update (booking one Single Room)
+        inventory.updateAvailability("Single Room", 4);
+        System.out.println("\nAfter booking one Single Room:");
+        inventory.displayInventory();
+
+        // Search again after update
+        searchService.searchAvailableRooms(rooms);
         single.displayRoomDetails();
         doubleRoom.displayRoomDetails();
         suite.displayRoomDetails();
